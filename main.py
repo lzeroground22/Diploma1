@@ -51,7 +51,6 @@ class VkUser:
             'v': self.version
         }
         self.owner_id = requests.get(self.url + 'users.get', self.params).json()['response'][0]['id']
-        # self.account_info = requests.get(self.url + 'account.getInfo', self.params).json()  # ['response'][0]['id']
 
     def get_albums(self, owner_id=None):
         if owner_id is None:
@@ -75,10 +74,8 @@ class VkUser:
             'album_id': album_id,
             'extended': 1,
             'count': 1000
-            # 'photo_sizes': 1
         }
         photo_info = requests.get(photo_url, params={**self.params, **photo_params})
-        # print(res.json())
         return photo_info.json()['response']['items']
 
     def decomposer(self, album_id):
@@ -93,7 +90,8 @@ class VkUser:
             }
             attrib_list.append(attrib)
         sorted_by_likes_list = sorted(attrib_list, key=lambda i: i['likes'], reverse=True)
-        print(sorted_by_likes_list)
+        return sorted_by_likes_list
+
 
 if __name__ == '__main__':
     # uploader = YaUploader('AQAAAAA36m8ZAADLW6XIsrMVfk9ImIKjJD3zTy0')
