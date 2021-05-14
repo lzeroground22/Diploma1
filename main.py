@@ -1,4 +1,5 @@
 import requests
+from pprint import pprint
 
 
 # class YaUploader:
@@ -58,39 +59,49 @@ class VkUser:
         album_url = self.url + 'photos.getAlbums'
         album_params = {
             'owner_id': owner_id,
-            # 'need_system': 1,
+            'need_system': 1,
             'album_ids': -6,
-            # 'photo_sizes': 1
         }
-
         res = requests.get(album_url, params={**self.params, **album_params})
-        # print(res.json())
         return res.json()
 
-    def get_photos(self, owner_id=None):
+    def get_photos(self, album_id, owner_id=None, ):
+        """Функция выдаёт подробную информацию о фото из альбома 'album_id' """
         if owner_id is None:
             owner_id = self.owner_id
         photo_url = self.url + 'photos.get'
         photo_params = {
             'owner_id': owner_id,
-            'album_id': 'profile',
+            'album_id': album_id,
             'extended': 1,
+            'count': 1000
             # 'photo_sizes': 1
         }
-        photores = requests.get(photo_url, params={**self.params, **photo_params})
+        photo_info = requests.get(photo_url, params={**self.params, **photo_params})
         # print(res.json())
-        return photores.json()
+        return photo_info.json()['response']['items']
 
+    def decomposer(self, album_id):
+        """ Функция сортирует фото по лайкам """
+        photos_list = self.get_photos(album_id)
+        attrib_list = []
+        for foto in photos_list:
+            attrib = {
+                'likes': foto['likes']['count'],
+                'size': foto['sizes'][-1]['type'],
+                'src': foto['sizes'][-1]['url']
+            }
+            attrib_list.append(attrib)
+        sorted_by_likes_list = sorted(attrib_list, key=lambda i: i['likes'], reverse=True)
+        print(sorted_by_likes_list)
 
 if __name__ == '__main__':
     # uploader = YaUploader('AQAAAAA36m8ZAADLW6XIsrMVfk9ImIKjJD3zTy0')
     # result = uploader.upload("D:\Python\Disk_file.txt")
     # print(result)
     vk_client = VkUser('bcb85bc9785a2be339acfd4e498c71a942a5414d56be54a29993f801ce84435ee7a237cd67709e0fe6d05', '5.130')
-    print(vk_client.get_photos())
-    # print(vk_client.owner_id)
-    # print(vk_client.account_info)
-    # print(vk_client.get_albums())
+    print(vk_client.decomposer('profile'))
+
 
 # 'a7885b2a0024c9e139618ca0ff5be5688dd12f285dcb522ccfe6f0eacc76b59ac5fd6ddc2a89e354acfa0' frunde token
 #  'bcb85bc9785a2be339acfd4e498c71a942a5414d56be54a29993f801ce84435ee7a237cd67709e0fe6d05' photo token
