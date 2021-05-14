@@ -55,21 +55,43 @@ class VkUser:
     def get_albums(self, owner_id=None):
         if owner_id is None:
             owner_id = self.owner_id
-        photo_url = self.url + 'photos.getAlbums'
+        album_url = self.url + 'photos.getAlbums'
+        album_params = {
+            'owner_id': owner_id,
+            # 'need_system': 1,
+            'album_ids': -6,
+            # 'photo_sizes': 1
+        }
+
+        res = requests.get(album_url, params={**self.params, **album_params})
+        # print(res.json())
+        return res.json()
+
+    def get_photos(self, owner_id=None):
+        if owner_id is None:
+            owner_id = self.owner_id
+        photo_url = self.url + 'photos.get'
         photo_params = {
             'owner_id': owner_id,
-            'need_system': 1,
-            'photo_sizes': 1
+            'album_id': 'profile',
+            'extended': 1,
+            # 'photo_sizes': 1
         }
-        res = requests.get(photo_url, params={**self.params, **photo_params})
-        print(res.json())
+        photores = requests.get(photo_url, params={**self.params, **photo_params})
+        # print(res.json())
+        return photores.json()
 
 
 if __name__ == '__main__':
     # uploader = YaUploader('AQAAAAA36m8ZAADLW6XIsrMVfk9ImIKjJD3zTy0')
     # result = uploader.upload("D:\Python\Disk_file.txt")
     # print(result)
-    vk_client = VkUser('a7885b2a0024c9e139618ca0ff5be5688dd12f285dcb522ccfe6f0eacc76b59ac5fd6ddc2a89e354acfa0', '5.130')
+    vk_client = VkUser('bcb85bc9785a2be339acfd4e498c71a942a5414d56be54a29993f801ce84435ee7a237cd67709e0fe6d05', '5.130')
+    print(vk_client.get_photos())
     # print(vk_client.owner_id)
     # print(vk_client.account_info)
-    vk_client.get_albums()
+    # print(vk_client.get_albums())
+
+# 'a7885b2a0024c9e139618ca0ff5be5688dd12f285dcb522ccfe6f0eacc76b59ac5fd6ddc2a89e354acfa0' frunde token
+#  'bcb85bc9785a2be339acfd4e498c71a942a5414d56be54a29993f801ce84435ee7a237cd67709e0fe6d05' photo token
+# https://oauth.vk.com/authorize?client_id=7845912&display=page&scope=photos&response_type=token&v=5.130
