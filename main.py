@@ -12,7 +12,7 @@ class YaUploader:
         }
 
     def adr_parser(self, file_path):
-        """Функция получает имя файла из пути к нему"""
+        """Метод получает имя файла из пути к нему"""
         adr_split = file_path.replace("\\", " ")
         adr_list = adr_split.split()
         return adr_list[-1]
@@ -77,7 +77,7 @@ class VkUser:
         return res.json()
 
     def get_photos(self, album_id, owner_id=None, ):
-        """Функция выдаёт подробную информацию о фото из альбома 'album_id' """
+        """Метод выдаёт подробную информацию о фото из альбома 'album_id' """
         if owner_id is None:
             owner_id = self.owner_id
         photo_url = self.url + 'photos.get'
@@ -91,7 +91,7 @@ class VkUser:
         return photo_info.json()['response']['items']
 
     def decomposer(self, album_id):
-        """ Метод сортирует фото по лайкам """
+        """Метод сортирует фото по лайкам """
         photos_list = self.get_photos(album_id)
         attrib_list = []
         for foto in photos_list:
