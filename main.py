@@ -114,6 +114,7 @@ def cycle(yandex, vk, album_id):
 
 
 def show_album(vk):
+    """Функция выводит id и названия доступных для выгрузки альбомов"""
     album_list = vk.get_albums()
     print('Доступные для выгрузки альбомы:')
     for alb in album_list:
