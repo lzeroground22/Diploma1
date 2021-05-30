@@ -71,10 +71,10 @@ class VkUser:
         album_params = {
             'owner_id': owner_id,
             'need_system': 1,
-            'album_ids': -6,
+            # 'album_ids': -6,
         }
         res = requests.get(album_url, params={**self.params, **album_params})
-        return res.json()
+        return res.json()['response']['items']
 
     def get_photos(self, album_id, owner_id=None, ):
         """Метод выдаёт подробную информацию о фото из альбома 'album_id' """
@@ -114,15 +114,19 @@ def cycle(yandex, vk, album_id):
 
 
 if __name__ == '__main__':
-    ya_token = "'" + str(input("Введите токен для Я.Диска: ")) + "'"
-    vk_token = "'" + str(input('Введите токен для ВКонтакте: ')) + "'"
-    album = "'" + str(input('Выберите альбом для выгрузки: ')) + "'"
-    vk_ver = "'" + str(input('Укажите версию VK_API (актуальная - 5.131): ')) + "'"
+    ya_token = input("Введите токен для Я.Диска: ")
+    vk_token = input('Введите токен для ВКонтакте: ')
+    vk_ver = input('Укажите версию VK_API (актуальная - 5.131): ')
     uploader = YaUploader(ya_token)
     vk_client = VkUser(vk_token, vk_ver)
+    print('Доступные для выгрузки альбомы:')
+    print('ID альбома', '| Название альбома:')
+    my_albums = vk_client.get_albums()
+    for alb in my_albums:
+        print(alb['id'], alb['title'])
+    print('________')
+    album = input('Выберите альбом для выгрузки: ')
     cycle(uploader, vk_client, album)
 
-# https://oauth.vk.com/authorize?client_id=7845912&display=page&scope=photos&response_type=token&v=5.130
+# https://oauth.vk.com/authorize?client_id=7845912&display=page&scope=photos,stats&response_type=token&v=5.130
 
-# c47152785ad2bb588421546d8746bfcb1e25dd4c5e648507e365f6b7b3781e0aab28d6dde06f79e7a6ad
-# AQAAAAA36m8ZAADLW6XIsrMVfk9ImIKjJD3zTy0
