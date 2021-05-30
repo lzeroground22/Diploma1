@@ -113,20 +113,22 @@ def cycle(yandex, vk, album_id):
         yandex.link_upload(photo['src'], file_path)
 
 
+def show_album(vk):
+    album_list = vk.get_albums()
+    print('Доступные для выгрузки альбомы:')
+    for alb in album_list:
+        print('id:', alb['id'], '-->', alb['title'])
+    print()
+
+
 if __name__ == '__main__':
     ya_token = input("Введите токен для Я.Диска: ")
     vk_token = input('Введите токен для ВКонтакте: ')
     vk_ver = input('Укажите версию VK_API (актуальная - 5.131): ')
     uploader = YaUploader(ya_token)
     vk_client = VkUser(vk_token, vk_ver)
-    print('Доступные для выгрузки альбомы:')
-    print('ID альбома', '| Название альбома:')
-    my_albums = vk_client.get_albums()
-    for alb in my_albums:
-        print(alb['id'], alb['title'])
-    print('________')
+    my_albums = show_album(vk_client)
     album = input('Выберите альбом для выгрузки: ')
     cycle(uploader, vk_client, album)
 
 # https://oauth.vk.com/authorize?client_id=7845912&display=page&scope=photos,stats&response_type=token&v=5.130
-
