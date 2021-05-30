@@ -114,9 +114,15 @@ def cycle(yandex, vk, album_id):
 
 
 if __name__ == '__main__':
-    uploader = YaUploader('YaToken')
-    vk_client = VkUser('VKToken', '5.130')
-    cycle(uploader, vk_client, 'profile')
-
+    ya_token = "'" + str(input("Введите токен для Я.Диска: ")) + "'"
+    vk_token = "'" + str(input('Введите токен для ВКонтакте: ')) + "'"
+    album = "'" + str(input('Выберите альбом для выгрузки: ')) + "'"
+    vk_ver = "'" + str(input('Укажите версию VK_API (актуальная - 5.131): ')) + "'"
+    uploader = YaUploader(ya_token)
+    vk_client = VkUser(vk_token, vk_ver)
+    cycle(uploader, vk_client, album)
 
 # https://oauth.vk.com/authorize?client_id=7845912&display=page&scope=photos&response_type=token&v=5.130
+
+# c47152785ad2bb588421546d8746bfcb1e25dd4c5e648507e365f6b7b3781e0aab28d6dde06f79e7a6ad
+# AQAAAAA36m8ZAADLW6XIsrMVfk9ImIKjJD3zTy0
