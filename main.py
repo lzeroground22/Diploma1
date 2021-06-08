@@ -61,7 +61,17 @@ class VkUser:
             'access_token': self.token,
             'v': self.version
         }
-        self.owner_id = requests.get(self.url + 'users.get', self.params).json()['response'][0]['id']
+        response = requests.get(self.url + 'users.get', self.params).json()
+        if 'response' in response:
+            self.owner_id = response['response'][0]['id']
+        elif 'error' in response:
+            print(response)
+            if response['error']['error_code'] == 5:
+                print("Вы указали неподходящий токен для ВК")
+                exit()
+            elif response['error']['error_code'] == 15:
+                print("У вас нет доступа к данному приложению")
+                exit()
 
     def get_albums(self, owner_id=None):
         """Метод позволяет узнать названия альбомов пользователя"""
@@ -123,13 +133,18 @@ def show_album(vk):
 
 
 if __name__ == '__main__':
-    ya_token = input("Введите токен для Я.Диска: ")
-    vk_token = input('Введите токен для ВКонтакте: ')
-    vk_ver = input('Укажите версию VK_API (актуальная - 5.131): ')
-    uploader = YaUploader(ya_token)
-    vk_client = VkUser(vk_token, vk_ver)
-    my_albums = show_album(vk_client)
-    album = input('Выберите альбом для выгрузки: ')
-    cycle(uploader, vk_client, album)
+    while True:
+        ya_token = input("Введите токен для Я.Диска: ")
+        vk_token = input('Введите токен для ВКонтакте: ')
+        vk_ver = '5.130'  # input('Укажите версию VK_API (актуальная - 5.131): ')
+        uploader = YaUploader(ya_token)
+        vk_client = VkUser(vk_token, vk_ver)
+        my_albums = show_album(vk_client)
+        album = input('Выберите альбом для выгрузки: ')
+        cycle(uploader, vk_client, album)
 
-# https://oauth.vk.com/authorize?client_id=7845912&display=page&scope=photos,stats&response_type=token&v=5.130
+# https://oauth.vk.com/authorize?client_id=7845912&display=page&scope=photos,status&response_type=token&v=5.130
+# AQAAAAA36m8ZAADLW6XIsrMVfk9ImIKjJD3zTy0
+# a7915b1742ce0c9a477dab7a1ebbd8f7b74e4417180e1c9c31ca157b1c6ed1e0d85e20e4ef29b74a2b815
+
+# f99f5b9a359ccd3e887c8e088964c657902a96e24513101a3128cc5b7f5bed886df5ab7fd06e7e0b1b031 wrong
