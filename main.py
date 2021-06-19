@@ -46,15 +46,14 @@ class YaUploader:
             'url': src,
             'disable_redirects': 'false'}
         response = requests.post(upload_url, headers=headers, params=params)
-        response.raise_for_status()
-        if response.status_code == 202:
-            return f'Файлы успешно загружены на Диск'
-        # if response.status_code != 202:
-        #     print(response)
-        #     raise AttributeError
-        elif response.status_code == 401:
-            print(response)
+        print(response.status_code)
+        answer = response.status_code
+        if answer == 401:
             raise AttributeError
+        elif answer == 507:
+            raise ImportError
+        elif answer == 202:
+            print('Файл', disk_file_path, 'успешно загружен')
 
 
 class VkUser:
@@ -68,6 +67,7 @@ class VkUser:
             'v': self.version
         }
         response = requests.get(self.url + 'users.get', self.params).json()  # ['response'][0]['id']
+        # print(response)
         if 'response' in response:
             self.owner_id = response['response'][0]['id']
         elif 'error' in response:
@@ -83,8 +83,13 @@ class VkUser:
             'owner_id': owner_id,
             'need_system': 1,
         }
-        res = requests.get(album_url, params={**self.params, **album_params})
-        return res.json()['response']['items']
+        res = requests.get(album_url, params={**self.params, **album_params}).json()
+        # print('get_albums', res)
+        if 'response' in res:
+            return res['response']['items']
+        elif 'error' in res:
+            if res['error']['error_code'] == 15:
+                raise ValueError
 
     def get_photos(self, album_id, owner_id=None, ):
         """Метод выдаёт подробную информацию о фото из альбома 'album_id' """
@@ -97,8 +102,12 @@ class VkUser:
             'extended': 1,
             'count': 1000
         }
-        photo_info = requests.get(photo_url, params={**self.params, **photo_params})
-        return photo_info.json()['response']['items']
+        photo_info = requests.get(photo_url, params={**self.params, **photo_params}).json()
+        # print('get_photos:', photo_info)
+        if 'response' in photo_info:
+            return photo_info['response']['items']
+        elif 'error' in photo_info:
+            raise FileExistsError
 
     def decomposer(self, album_id):
         """Метод сортирует фото по лайкам """
@@ -126,6 +135,7 @@ def cycle(yandex, vk, album_id):
 def show_album(vk):
     """Функция выводит id и названия доступных для выгрузки альбомов"""
     album_list = vk.get_albums()
+    # print(album_list)
     print('Доступные для выгрузки альбомы:')
     for alb in album_list:
         print('id:', alb['id'], '-->', alb['title'])
@@ -144,12 +154,12 @@ if __name__ == '__main__':
             album = input('Выберите альбом для выгрузки: ')
             cycle(uploader, vk_client, album)
         except ValueError:
-            print("Вы указали неподходящий токен для ВКонтакте")
+            print("Вы указали неподходящий токен для ВКонтакте или у пользователя нет доступных альбомов")
         except AttributeError:
             print("Вы указали неподходящий токен для Яндекс.Диска")
+        except ImportError:
+            print("На Диске закончилось место на диске")
+        except FileExistsError:
+            print('Вы ввели неправильные данные. Давайте попробуем еще раз')
 
-# https://oauth.vk.com/authorize?client_id=7845912&display=page&scope=photos,status&response_type=token&v=5.130
-# AQAAAAA36m8ZAADLW6XIsrMVfk9ImIKjJD3zTy0
-# 5654395a519061beafa8c77803aa84308e7accaf97b028ee2005e9666b322bf899b1ab9a90836c7531774
 
-# f99f5b9a359ccd3e887c8e088964c657902a96e24513101a3128cc5b7f5bed886df5ab7fd06e7e0b1b031 wrong
