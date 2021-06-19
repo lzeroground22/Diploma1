@@ -162,4 +162,9 @@ if __name__ == '__main__':
         except FileExistsError:
             print('Вы ввели неправильные данные. Давайте попробуем еще раз')
 
+# https://oauth.vk.com/authorize?client_id=7845912&display=page&scope=photos,status&response_type=token&v=5.130
+# AQAAAAA36m8ZAADLW6XIsrMVfk9ImIKjJD3zTy0
 
+# 34675bf983d49093c81916ef663c2c7abb5e2f045cf5f197a20335a74de42c46ce7f5db1c7f0c71fc06a6
+# f99f5b9a359ccd3e887c8e088964c657902a96e24513101a3128cc5b7f5bed886df5ab7fd06e7e0b1b031 wrong
+# id: -6 --> Фотографии с моей страницы
