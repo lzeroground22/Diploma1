@@ -46,7 +46,7 @@ class YaUploader:
             'url': src,
             'disable_redirects': 'false'}
         response = requests.post(upload_url, headers=headers, params=params)
-        print(response.status_code)
+        # print(response.status_code)
         answer = response.status_code
         if answer == 401:
             raise AttributeError
@@ -59,7 +59,7 @@ class YaUploader:
 class VkUser:
     url = 'https://api.vk.com/method/'
 
-    def __init__(self, token, version):
+    def __init__(self, token, version='5.131'):
         self.token = token
         self.version = version
         self.params = {
@@ -67,7 +67,7 @@ class VkUser:
             'v': self.version
         }
         response = requests.get(self.url + 'users.get', self.params).json()  # ['response'][0]['id']
-        # print(response)
+        # print('initresponse', response)
         if 'response' in response:
             self.owner_id = response['response'][0]['id']
         elif 'error' in response:
@@ -79,6 +79,7 @@ class VkUser:
         if owner_id is None:
             owner_id = self.owner_id
         album_url = self.url + 'photos.getAlbums'
+        print('owner_id', owner_id)
         album_params = {
             'owner_id': owner_id,
             'need_system': 1,
@@ -89,7 +90,13 @@ class VkUser:
             return res['response']['items']
         elif 'error' in res:
             if res['error']['error_code'] == 15:
-                raise ValueError
+                albs = [
+                    {'id': -6, 'title': 'Фотографии с моей страницы'},
+                    {'id': -7, 'title': 'Фотографии на моей стене'},
+                    {'id': -15, 'title': 'Сохранённые фотографии'},
+                    {'id': -9000, 'title': 'Фотографии со мной'}
+                ]
+                return albs
 
     def get_photos(self, album_id, owner_id=None, ):
         """Метод выдаёт подробную информацию о фото из альбома 'album_id' """
@@ -103,11 +110,13 @@ class VkUser:
             'count': 1000
         }
         photo_info = requests.get(photo_url, params={**self.params, **photo_params}).json()
-        # print('get_photos:', photo_info)
+        # print('get_photos:', photo_info['error']['error_code'])
         if 'response' in photo_info:
             return photo_info['response']['items']
-        elif 'error' in photo_info:
+        elif photo_info['error']['error_code'] == 100:
             raise FileExistsError
+        elif photo_info['error']['error_code'] == 200:
+            raise FileNotFoundError
 
     def decomposer(self, album_id):
         """Метод сортирует фото по лайкам """
@@ -147,24 +156,18 @@ if __name__ == '__main__':
         try:
             ya_token = input("Введите токен для Я.Диска: ")
             vk_token = input('Введите токен для ВКонтакте: ')
-            vk_ver = '5.130'  # input('Укажите версию VK_API (актуальная - 5.131): ')
             uploader = YaUploader(ya_token)
-            vk_client = VkUser(vk_token, vk_ver)
+            vk_client = VkUser(vk_token)
             my_albums = show_album(vk_client)
             album = input('Выберите альбом для выгрузки: ')
             cycle(uploader, vk_client, album)
         except ValueError:
-            print("Вы указали неподходящий токен для ВКонтакте или у пользователя нет доступных альбомов")
+            print("Вы указали неподходящий токен для ВКонтакте")
         except AttributeError:
             print("Вы указали неподходящий токен для Яндекс.Диска")
         except ImportError:
             print("На Диске закончилось место на диске")
         except FileExistsError:
-            print('Вы ввели неправильные данные. Давайте попробуем еще раз')
-
-# https://oauth.vk.com/authorize?client_id=7845912&display=page&scope=photos,status&response_type=token&v=5.130
-# AQAAAAA36m8ZAADLW6XIsrMVfk9ImIKjJD3zTy0
-
-# 34675bf983d49093c81916ef663c2c7abb5e2f045cf5f197a20335a74de42c46ce7f5db1c7f0c71fc06a6
-# f99f5b9a359ccd3e887c8e088964c657902a96e24513101a3128cc5b7f5bed886df5ab7fd06e7e0b1b031 wrong
-# id: -6 --> Фотографии с моей страницы
+            print('Этот вариант не сработал. Давайте попробуем еще раз')
+        except FileNotFoundError:
+            print('Доступ к альбому запрещён')
